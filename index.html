@@ -14,11 +14,10 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    overflow-y: auto;
     overflow-x: hidden;
     background: linear-gradient(135deg, #f6d365, #fda085, #ff9a9e, #fad0c4);
     background-size: 400% 400%;
-    animation: gradientShift 60s ease infinite;
+    animation: gradientShift 30s ease infinite;
     position: relative;
   }
 
@@ -29,7 +28,7 @@
   }
 
   .container {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     padding: 30px;
     border-radius: 25px;
@@ -45,17 +44,20 @@
   h1 { font-size: 32px; color: #d6336c; margin-bottom: 10px; }
   p { font-size: 18px; color: #555; margin-bottom: 20px; }
 
-  input {
+  input[type=text] {
     width: 90%;
-    padding: 14px;
-    margin: 8px 0;
+    padding: 12px;
+    margin-bottom: 20px;
     font-size: 18px;
     border-radius: 12px;
     border: 2px solid #ff6f91;
     outline: none;
-    transition: transform 0.2s, border-color 0.3s;
+    transition: all 0.3s;
   }
-  input:focus { transform: scale(1.02); border-color: #ff507a; }
+  input[type=text]:focus {
+    border-color: #d6336c;
+    box-shadow: 0 0 8px rgba(214,51,108,0.5);
+  }
 
   button {
     width: 90%;
@@ -80,12 +82,11 @@
   #wish-btn { background: #28a745; color: white; }
   #wish-btn:hover { background: #1e7e34; }
 
-  #result, #final-text {
+  #result, #final-text, #stats {
     margin-top: 20px;
     font-size: 20px;
     animation: fadeIn 0.6s ease;
   }
-
   #result.wrong { color: #d6336c; }
 
   #mom-photo {
@@ -96,21 +97,8 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.35);
     border: 5px solid #ff6f91;
     transition: transform 0.8s ease, box-shadow 0.8s ease;
-    filter: brightness(1.05);
     position: relative;
     z-index: 2;
-  }
-
-  .floating {
-    position: absolute;
-    pointer-events: none;
-    font-size: 24px;
-    animation: floatUp 3s ease forwards;
-  }
-
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
   }
 
   #particles {
@@ -122,21 +110,31 @@
     overflow: hidden;
     z-index: 1;
   }
+
+  .particle {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.7;
+    user-select: none;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
 <div id="particles"></div>
 <div class="container" id="main-container">
-  <h1>Guess Whose Birthday It Is 🎉</h1>
-
+  <h1>Guess Whose Birthday It Is?!! Jap's:- 🎉</h1>
   <div id="name-section">
-    <input type="text" id="visitor-name" placeholder="Enter your name..." />
-    <button onclick="enterName()">Submit Name</button>
+    <input type="text" id="visitor-name" placeholder="Enter your name" />
+    <button onclick="startQuiz()">Start</button>
+  </div>
+
+  <div id="instructions" style="display:none;">
+    <p>Only one chance to guess! Choose wisely:</p>
+    <p class="note">*One guess per device is allowed*</p>
   </div>
 
   <div id="options" style="display:none;">
-    <p>Only one chance to guess! Choose wisely:</p>
-    <p class="note">*One guess per visitor*</p>
     <button onclick="recordAnswer('mom', this)">Mom</button>
     <button onclick="recordAnswer('dad', this)">Dad</button>
     <button onclick="recordAnswer('sister', this)">Sister</button>
@@ -146,19 +144,29 @@
   </div>
 
   <div id="result"></div>
-  <img id="mom-photo" src="mom.jpeg" alt="Mom Photo" />
   <div id="final-text"></div>
-  <button class="reset-btn" onclick="resetPage()">Reset Page</button>
+  <img id="mom-photo" src="mom.jpeg" alt="Mom Photo" />
+  <div id="stats" style="display:none;"></div>
+  <button class="reset-btn" onclick="resetVotes()">Reset Votes</button>
   <button id="wish-btn" style="display:none;">Send Birthday Wish ❤️</button>
 </div>
 
 <canvas class="confetti" id="confetti-canvas"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
+let stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
 let guessed = false;
 let visitorName = '';
 
-// Sounds
+function startQuiz(){
+  const nameInput = document.getElementById('visitor-name');
+  visitorName = nameInput.value.trim();
+  if(!visitorName) { alert('Please enter your name'); return; }
+  document.getElementById('name-section').style.display='none';
+  document.getElementById('instructions').style.display='block';
+  document.getElementById('options').style.display='block';
+}
+
 const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
 const clickSound = new Audio('https://actions.google.com/sounds/v1/cartoon/soft_pop.ogg');
@@ -168,134 +176,110 @@ jingleSound.loop = true;
 jingleSound.volume = 0.15;
 jingleSound.play().catch(()=>{});
 
-// Balloons
-function createParticles() {
-  const particleContainer = document.getElementById('particles');
-  const symbols = ['🎈','🎉','💖','⭐'];
-  for(let i=0;i<20;i++){
-    const span = document.createElement('span');
-    span.className = 'particle';
-    span.innerText = symbols[Math.floor(Math.random()*symbols.length)];
-    span.style.left = Math.random()*100+'%';
-    span.style.animationDuration = (Math.random()*10 + 10)+'s';
-    span.style.fontSize = (Math.random()*20 + 20)+'px';
-    particleContainer.appendChild(span);
-  }
-}
-createParticles();
-
-// Enter Name
-function enterName() {
-  const input = document.getElementById('visitor-name');
-  if(input.value.trim()==='') { alert('Please enter your name'); return; }
-  visitorName = input.value.trim();
-  document.getElementById('name-section').style.display = 'none';
-  document.getElementById('options').style.display = 'block';
+function hideOptionsAndInstructions(){
+  document.getElementById('options').style.display='none';
+  document.getElementById('instructions').style.display='none';
 }
 
-// Hide options after selection
-function hideOptions() {
-  document.getElementById('options').style.display = 'none';
-}
-
-// Floating animation
-function animateFloatingMessage(symbol) {
-  const container = document.getElementById('main-container');
-  const span = document.createElement('span');
-  span.innerText = symbol;
-  span.className = 'floating';
-  span.style.left = Math.random() * 80 + '%';
-  container.appendChild(span);
-  setTimeout(()=> span.remove(), 3000);
-}
-
-// Confetti around photo
-function launchConfettiAroundPhoto(rect, duration=1000) {
-  const end = Date.now() + duration;
-  (function frame() {
-    const randomX = rect.left + Math.random() * rect.width;
-    const randomY = rect.top + Math.random() * rect.height;
-    confetti({particleCount: 8, spread: 60, origin: {x: randomX/window.innerWidth, y: randomY/window.innerHeight}, shapes:['circle','heart','star']});
-    if(Date.now() < end){ requestAnimationFrame(frame); }
-  }());
-}
-
-// Record answer and send to Google Apps Script
-function recordAnswer(choice, btn) {
+function recordAnswer(choice, btn){
   if(guessed) return;
+  stats[choice]++;
+  stats.total++;
   guessed = true;
-  hideOptions();
+  hideOptionsAndInstructions();
 
   const resultEl = document.getElementById('result');
-  const photo = document.getElementById('mom-photo');
-  photo.style.display = 'block';
-  const rect = photo.getBoundingClientRect();
+  showPhoto();
+  const rect = document.getElementById('mom-photo').getBoundingClientRect();
 
-  if(choice==='mom') {
+  if(choice==='mom'){
     resultEl.innerHTML = `Correct! 🎉 ❤️ ${visitorName} guessed correctly!`;
-    animateFloatingMessage('🎈');
-    launchConfettiAroundPhoto(rect,1200);
+    launchConfettiAroundPhoto(rect, 1200);
     correctSound.play().catch(()=>{});
   } else {
     resultEl.innerHTML = `${visitorName} guessed ${choice} 😢 Incorrect! The correct answer is Mom.`;
     resultEl.classList.add('wrong');
-    animateFloatingMessage('💔');
-    launchConfettiAroundPhoto(rect,800);
+    launchConfettiAroundPhoto(rect, 800);
     wrongSound.play().catch(()=>{});
   }
-
-  // Send vote to Google Apps Script
-  fetch("https://script.google.com/macros/s/AKfycbw3W_nFycUAhYnUz-OpmPLNNy3tk4itv9PVxXypkKkm2CfldPI9nb4LP2xvvM_VlObL/exec", {
-    method: "POST",
-    body: JSON.stringify({name: visitorName, choice: choice}),
-  }).then(res => res.json())
-    .then(data => console.log("Vote recorded:", data))
-    .catch(err => console.error("Vote failed:", err));
-
-  document.getElementById('wish-btn').style.display = 'block';
-
-  // Show emotional message
-  document.getElementById('final-text').innerHTML = `
-  <p>Mom, even though I am far away in Canada, my heart is with you today. Your love, strength, and warmth inspire me every day. Happy Birthday! ❤️🎉</p>
-  `;
+  document.getElementById('wish-btn').style.display='block';
+  showStats();
 }
 
-// Reset page
-function resetPage() {
-  guessed = false;
-  visitorName = '';
-  document.getElementById('visitor-name').value = '';
-  document.getElementById('name-section').style.display = 'block';
-  document.getElementById('options').style.display = 'none';
-  document.getElementById('result').innerHTML = '';
-  document.getElementById('final-text').innerHTML = '';
-  document.getElementById('mom-photo').style.display = 'none';
-  document.getElementById('wish-btn').style.display = 'none';
+function showPhoto(){
+  document.getElementById('mom-photo').style.display='block';
 }
 
-// Send birthday wish via WhatsApp
+function showStats(){
+  const statsDiv = document.getElementById('stats');
+  statsDiv.style.display='block';
+  const total = stats.total || 0;
+  const pct = n => total===0?'0.0':((n/total)*100).toFixed(1);
+  statsDiv.innerHTML = `<strong>Live Results:</strong><br>Mom: ${pct(stats.mom)}%<br>Dad: ${pct(stats.dad)}%<br>Sister: ${pct(stats.sister)}%<br>Cousin: ${pct(stats.cousin)}%<br>Friend: ${pct(stats.friend)}%<br>Someone Else: ${pct(stats.someone_else)}%<br>Total Votes: ${total}`;
+}
+
+function resetVotes(){
+  stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
+  guessed=false;
+  document.getElementById('options').style.display='block';
+  document.getElementById('instructions').style.display='block';
+  document.getElementById('result').innerHTML='';
+  document.getElementById('result').classList.remove('wrong');
+  document.getElementById('mom-photo').style.display='none';
+  document.getElementById('stats').style.display='none';
+  document.getElementById('wish-btn').style.display='none';
+  document.getElementById('name-section').style.display='block';
+}
+
+function launchConfettiAroundPhoto(rect, duration=1000){
+  const end = Date.now() + duration;
+  (function frame(){
+    const randomX = rect.left + Math.random() * rect.width;
+    const randomY = rect.top + Math.random() * rect.height;
+    confetti({particleCount: 8, spread: 60, origin:{x:randomX/window.innerWidth,y:randomY/window.innerHeight}, shapes:['circle','heart','star']});
+    if(Date.now() < end){ requestAnimationFrame(frame); }
+  }());
+}
+
+// Particles floating in background continuously
+function createParticles(){
+  const particleContainer = document.getElementById('particles');
+  const symbols = ['🎈','🎉','💖','⭐'];
+  const totalParticles = 15;
+  for(let i=0;i<totalParticles;i++){
+    const span = document.createElement('span');
+    span.className='particle';
+    span.innerText=symbols[Math.floor(Math.random()*symbols.length)];
+    resetParticle(span);
+    particleContainer.appendChild(span);
+    animateParticle(span);
+  }
+}
+
+function resetParticle(span){
+  span.style.left = Math.random()*100 + '%';
+  span.style.top = '100%';
+  span.style.fontSize = (Math.random()*20 + 20)+'px';
+  span.speed = Math.random()*0.5 + 0.5;
+}
+
+function animateParticle(span){
+  function move(){
+    let top = parseFloat(span.style.top);
+    top -= span.speed;
+    if(top<-5){ top=100; span.style.left=Math.random()*100 + '%'; }
+    span.style.top = top + '%';
+    requestAnimationFrame(move);
+  }
+  move();
+}
+createParticles();
+
+// Send Birthday Wish button
 document.getElementById('wish-btn').addEventListener('click', function(){
   const message = encodeURIComponent(`Hi! I'm ${visitorName}. Wishing your Mom a very Happy Birthday! 🎉❤️`);
   const whatsappUrl = `https://wa.me/16044459047?text=${message}`;
-  window.open(whatsappUrl, '_blank');
-});
-
-// Confetti on click anywhere
-document.addEventListener('click', function(e){
-  if(!guessed) return;
-  clickSound.currentTime = 0;
-  clickSound.play().catch(()=>{});
-  const photo = document.getElementById('mom-photo');
-  const rect = photo.getBoundingClientRect();
-  let originX, originY;
-  if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom){
-    originX = rect.left + Math.random() * rect.width;
-    originY = rect.top + Math.random() * rect.height;
-  } else {
-    originX = e.clientX;
-    originY = e.clientY;
-  }
-  confetti({particleCount: 6, spread: 60, origin: {x: originX/window.innerWidth, y: originY/window.innerHeight}, shapes:['circle','heart','star']});
+  window.open(whatsappUrl,'_blank');
 });
 </script>
 </body>
