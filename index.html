@@ -18,7 +18,7 @@
     overflow-x: hidden;
     background: linear-gradient(135deg, #f6d365, #fda085, #ff9a9e, #fad0c4);
     background-size: 400% 400%;
-    animation: gradientShift 30s ease infinite;
+    animation: gradientShift 60s ease infinite;
     position: relative;
   }
 
@@ -29,8 +29,8 @@
   }
 
   .container {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
     padding: 30px;
     border-radius: 25px;
     width: 95%;
@@ -42,26 +42,20 @@
     z-index: 2;
   }
 
-  h1 { font-size: 28px; color: #d6336c; margin-bottom: 20px; }
+  h1 { font-size: 32px; color: #d6336c; margin-bottom: 10px; }
   p { font-size: 18px; color: #555; margin-bottom: 20px; }
 
-  #visitor-name {
+  input {
     width: 90%;
-    padding: 14px 18px;
-    margin: 12px auto;
-    display: block;
+    padding: 14px;
+    margin: 8px 0;
+    font-size: 18px;
     border-radius: 12px;
     border: 2px solid #ff6f91;
-    font-size: 18px;
     outline: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    text-align: center;
+    transition: transform 0.2s, border-color 0.3s;
   }
-  #visitor-name:focus {
-    border-color: #d6336c;
-    box-shadow: 0 5px 20px rgba(255,111,145,0.5);
-  }
+  input:focus { transform: scale(1.02); border-color: #ff507a; }
 
   button {
     width: 90%;
@@ -86,7 +80,7 @@
   #wish-btn { background: #28a745; color: white; }
   #wish-btn:hover { background: #1e7e34; }
 
-  #result, #final-text, #stats {
+  #result, #final-text {
     margin-top: 20px;
     font-size: 20px;
     animation: fadeIn 0.6s ease;
@@ -99,13 +93,10 @@
     width:100%;
     margin-top:20px;
     border-radius:20px;
-    box-shadow: 0 8px 35px rgba(255,111,145,0.6);
-    border: 6px solid;
-    border-image-slice: 1;
-    border-width: 6px;
-    border-image-source: linear-gradient(45deg, #f6d365, #fda085, #ff9a9e);
-    filter: brightness(1.2) contrast(1.2);
-    transition: transform 0.8s ease, box-shadow 0.8s ease, filter 0.8s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    border: 5px solid #ff6f91;
+    transition: transform 0.8s ease, box-shadow 0.8s ease;
+    filter: brightness(1.05);
     position: relative;
     z-index: 2;
   }
@@ -131,37 +122,21 @@
     overflow: hidden;
     z-index: 1;
   }
-
-  .particle {
-    position: absolute;
-    font-size: 20px;
-    opacity: 0.7;
-    user-select: none;
-    animation: rise linear infinite;
-  }
-
-  @keyframes rise {
-    0% { transform: translateY(100vh); }
-    100% { transform: translateY(-50px); }
-  }
 </style>
 </head>
 <body>
 <div id="particles"></div>
 <div class="container" id="main-container">
-  <h1>Can You Guess Whose Birthday Jap is Celebrating? 🎉</h1>
+  <h1>Guess Whose Birthday It Is 🎉</h1>
 
-  <div id="name-container">
+  <div id="name-section">
     <input type="text" id="visitor-name" placeholder="Enter your name..." />
-    <button id="start-btn">Start Guessing</button>
-  </div>
-
-  <div id="instructions" style="display:none;">
-    <p>Only one chance to guess! Choose wisely:</p>
-    <p class="note">*One guess per device is allowed*</p>
+    <button onclick="enterName()">Submit Name</button>
   </div>
 
   <div id="options" style="display:none;">
+    <p>Only one chance to guess! Choose wisely:</p>
+    <p class="note">*One guess per visitor*</p>
     <button onclick="recordAnswer('mom', this)">Mom</button>
     <button onclick="recordAnswer('dad', this)">Dad</button>
     <button onclick="recordAnswer('sister', this)">Sister</button>
@@ -171,28 +146,19 @@
   </div>
 
   <div id="result"></div>
-  <div id="final-text"></div>
   <img id="mom-photo" src="mom.jpeg" alt="Mom Photo" />
-  <div id="stats" style="display:none;"></div>
-  <button class="reset-btn" onclick="resetVotes()">Reset Votes</button>
+  <div id="final-text"></div>
+  <button class="reset-btn" onclick="resetPage()">Reset Page</button>
   <button id="wish-btn" style="display:none;">Send Birthday Wish ❤️</button>
 </div>
 
 <canvas class="confetti" id="confetti-canvas"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-let stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
 let guessed = false;
 let visitorName = '';
-const startBtn = document.getElementById('start-btn');
-startBtn.addEventListener('click', function(){
-  visitorName = document.getElementById('visitor-name').value.trim() || 'Guest';
-  document.getElementById('name-container').style.display = 'none';
-  document.getElementById('instructions').style.display = 'block';
-  document.getElementById('options').style.display = 'block';
-  localStorage.setItem('visitorName', visitorName);
-});
 
+// Sounds
 const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
 const clickSound = new Audio('https://actions.google.com/sounds/v1/cartoon/soft_pop.ogg');
@@ -202,6 +168,7 @@ jingleSound.loop = true;
 jingleSound.volume = 0.15;
 jingleSound.play().catch(()=>{});
 
+// Balloons
 function createParticles() {
   const particleContainer = document.getElementById('particles');
   const symbols = ['🎈','🎉','💖','⭐'];
@@ -217,45 +184,21 @@ function createParticles() {
 }
 createParticles();
 
-function hideOptionsAndInstructions() {
+// Enter Name
+function enterName() {
+  const input = document.getElementById('visitor-name');
+  if(input.value.trim()==='') { alert('Please enter your name'); return; }
+  visitorName = input.value.trim();
+  document.getElementById('name-section').style.display = 'none';
+  document.getElementById('options').style.display = 'block';
+}
+
+// Hide options after selection
+function hideOptions() {
   document.getElementById('options').style.display = 'none';
-  document.getElementById('instructions').style.display = 'none';
 }
 
-function recordAnswer(choice, btn) {
-  if(guessed) return;
-  stats[choice]++;
-  stats.total++;
-  try { localStorage.setItem('voteStats', JSON.stringify(stats)); localStorage.setItem('hasVoted','true'); } catch(e) {}
-  guessed = true;
-  hideOptionsAndInstructions();
-
-  const resultEl = document.getElementById('result');
-  showPhoto();
-
-  const rect = document.getElementById('mom-photo').getBoundingClientRect();
-
-  if(choice === 'mom') {
-    resultEl.innerHTML = `Correct! 🎉 ❤️ ${visitorName} guessed correctly!`;
-    animateFloatingMessage('🎈');
-    launchConfettiAroundPhoto(rect, 1200);
-    correctSound.play().catch(()=>{});
-  } else {
-    resultEl.innerHTML = `${visitorName} guessed ${choice} 😢 Incorrect! The correct answer is Mom.`;
-    resultEl.classList.add('wrong');
-    animateFloatingMessage('💔');
-    launchConfettiAroundPhoto(rect, 800);
-    wrongSound.play().catch(()=>{});
-  }
-  document.getElementById('final-text').innerHTML = `Happy Birthday Mom! Even though I am far away, my heart is with you. Wishing you endless joy, love, and happiness. ❤️`;
-  document.getElementById('wish-btn').style.display = 'block';
-  showStats();
-}
-
-function showPhoto() {
-  document.getElementById('mom-photo').style.display = 'block';
-}
-
+// Floating animation
 function animateFloatingMessage(symbol) {
   const container = document.getElementById('main-container');
   const span = document.createElement('span');
@@ -266,38 +209,7 @@ function animateFloatingMessage(symbol) {
   setTimeout(()=> span.remove(), 3000);
 }
 
-function showStats() {
-  const statsDiv = document.getElementById('stats');
-  statsDiv.style.display = 'block';
-  const total = stats.total || 0;
-  const pct = n => total===0?'0.0':((n/total)*100).toFixed(1);
-  statsDiv.innerHTML = `
-    <strong>Live Results:</strong><br>
-    Mom: ${pct(stats.mom)}%<br>
-    Dad: ${pct(stats.dad)}%<br>
-    Sister: ${pct(stats.sister)}%<br>
-    Cousin: ${pct(stats.cousin)}%<br>
-    Friend: ${pct(stats.friend)}%<br>
-    Someone Else: ${pct(stats.someone_else)}%<br>
-    Total Votes: ${total}
-  `;
-}
-
-function resetVotes() {
-  stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
-  guessed = false;
-  try { localStorage.removeItem('voteStats'); localStorage.removeItem('hasVoted'); localStorage.removeItem('visitorName'); } catch(e) {}
-  document.getElementById('options').style.display = 'none';
-  document.getElementById('instructions').style.display = 'none';
-  document.getElementById('name-container').style.display = 'block';
-  document.getElementById('result').innerHTML = '';
-  document.getElementById('result').classList.remove('wrong');
-  document.getElementById('final-text').innerHTML = '';
-  document.getElementById('mom-photo').style.display = 'none';
-  document.getElementById('stats').style.display = 'none';
-  document.getElementById('wish-btn').style.display = 'none';
-}
-
+// Confetti around photo
 function launchConfettiAroundPhoto(rect, duration=1000) {
   const end = Date.now() + duration;
   (function frame() {
@@ -308,6 +220,67 @@ function launchConfettiAroundPhoto(rect, duration=1000) {
   }());
 }
 
+// Record answer and send to Google Apps Script
+function recordAnswer(choice, btn) {
+  if(guessed) return;
+  guessed = true;
+  hideOptions();
+
+  const resultEl = document.getElementById('result');
+  const photo = document.getElementById('mom-photo');
+  photo.style.display = 'block';
+  const rect = photo.getBoundingClientRect();
+
+  if(choice==='mom') {
+    resultEl.innerHTML = `Correct! 🎉 ❤️ ${visitorName} guessed correctly!`;
+    animateFloatingMessage('🎈');
+    launchConfettiAroundPhoto(rect,1200);
+    correctSound.play().catch(()=>{});
+  } else {
+    resultEl.innerHTML = `${visitorName} guessed ${choice} 😢 Incorrect! The correct answer is Mom.`;
+    resultEl.classList.add('wrong');
+    animateFloatingMessage('💔');
+    launchConfettiAroundPhoto(rect,800);
+    wrongSound.play().catch(()=>{});
+  }
+
+  // Send vote to Google Apps Script
+  fetch("https://script.google.com/macros/s/AKfycbw3W_nFycUAhYnUz-OpmPLNNy3tk4itv9PVxXypkKkm2CfldPI9nb4LP2xvvM_VlObL/exec", {
+    method: "POST",
+    body: JSON.stringify({name: visitorName, choice: choice}),
+  }).then(res => res.json())
+    .then(data => console.log("Vote recorded:", data))
+    .catch(err => console.error("Vote failed:", err));
+
+  document.getElementById('wish-btn').style.display = 'block';
+
+  // Show emotional message
+  document.getElementById('final-text').innerHTML = `
+  <p>Mom, even though I am far away in Canada, my heart is with you today. Your love, strength, and warmth inspire me every day. Happy Birthday! ❤️🎉</p>
+  `;
+}
+
+// Reset page
+function resetPage() {
+  guessed = false;
+  visitorName = '';
+  document.getElementById('visitor-name').value = '';
+  document.getElementById('name-section').style.display = 'block';
+  document.getElementById('options').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('final-text').innerHTML = '';
+  document.getElementById('mom-photo').style.display = 'none';
+  document.getElementById('wish-btn').style.display = 'none';
+}
+
+// Send birthday wish via WhatsApp
+document.getElementById('wish-btn').addEventListener('click', function(){
+  const message = encodeURIComponent(`Hi! I'm ${visitorName}. Wishing your Mom a very Happy Birthday! 🎉❤️`);
+  const whatsappUrl = `https://wa.me/16044459047?text=${message}`;
+  window.open(whatsappUrl, '_blank');
+});
+
+// Confetti on click anywhere
 document.addEventListener('click', function(e){
   if(!guessed) return;
   clickSound.currentTime = 0;
@@ -323,13 +296,6 @@ document.addEventListener('click', function(e){
     originY = e.clientY;
   }
   confetti({particleCount: 6, spread: 60, origin: {x: originX/window.innerWidth, y: originY/window.innerHeight}, shapes:['circle','heart','star']});
-});
-
-// Send Birthday Wish button
-document.getElementById('wish-btn').addEventListener('click', function(){
-  const message = encodeURIComponent(`Hi! I'm ${visitorName}. Wishing your Mom a very Happy Birthday! 🎉❤️`);
-  const whatsappUrl = `https://wa.me/16044459047?text=${message}`;
-  window.open(whatsappUrl, '_blank');
 });
 </script>
 </body>
