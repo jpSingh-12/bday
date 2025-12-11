@@ -3,284 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Birthday Page</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Happy Birthday to Someone :))</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-    background: linear-gradient(135deg, #f6d365, #fda085, #ff9a9e, #fad0c4);
-    background-size: 400% 400%;
-    animation: gradientShift 30s ease infinite;
-    position: relative;
-  }
+/* Kiven o, Ki labh rhe o Idhr? */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(135deg,#ffdde1,#ee9ca7,#fcbad3,#ff9a9e,#fad0c4);
+  background-size: 500% 500%;
+  animation: gradientShift 18s ease infinite;
+  position: relative;
+}
 
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+@keyframes gradientShift {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
 
-  .container {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 25px;
-    width: 95%;
-    max-width: 600px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    text-align: center;
-    position: relative;
-    margin: 50px auto;
-    z-index: 2;
-  }
+body::before {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, rgba(255,180,200,0.8) 0%, rgba(255,140,160,0.2) 45%, transparent 70%);
+  animation: heartbeat 3.5s ease-in-out infinite;
+  filter: blur(60px);
+  z-index: 0;
+}
 
-  h1 { font-size: 32px; color: #d6336c; margin-bottom: 10px; }
-  p { font-size: 18px; color: #555; margin-bottom: 20px; }
+.font-size {
+	font-size : 23px;
+}
 
-  input[type=text] {
-    width: 90%;
-    padding: 12px;
-    margin-bottom: 20px;
-    font-size: 18px;
-    border-radius: 12px;
-    border: 2px solid #ff6f91;
-    outline: none;
-    transition: all 0.3s;
-  }
-  input[type=text]:focus {
-    border-color: #d6336c;
-    box-shadow: 0 0 8px rgba(214,51,108,0.5);
-  }
+@keyframes heartbeat {
+  0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.55; }
+  50% { transform: translate(-50%,-50%) scale(1.25); opacity: 0.85; }
+}
 
-  button {
-    width: 90%;
-    padding: 14px;
-    margin: 8px 0;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 12px;
-    border: none;
-    font-weight: 600;
-    background: #ff6f91;
-    color: white;
-    transition: transform 0.2s, background 0.25s;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  button:hover { background: #ff507a; transform: scale(1.05); }
+.container {
+  position: relative;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  border-radius: 25px;
+  width: 95%;
+  max-width: 600px;
+  margin: 100px auto 50px auto;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  z-index: 2;
+}
 
-  .reset-btn { background: #0077ff; }
-  .reset-btn:hover { background: #005fd1; }
-  #wish-btn { background: #28a745; color: white; }
-  #wish-btn:hover { background: #1e7e34; }
+#particles {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
 
-  #result, #final-text, #stats {
-    margin-top: 20px;
-    font-size: 20px;
-    animation: fadeIn 0.6s ease;
-  }
-  #result.wrong { color: #d6336c; }
+#glitter-layer { display:none; }
 
-  #mom-photo {
-    display:none;
-    width:100%;
-    margin-top:20px;
-    border-radius:20px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-    border: 5px solid #ff6f91;
-    transition: transform 0.8s ease, box-shadow 0.8s ease;
-    position: relative;
-    z-index: 2;
-  }
+h1 { font-size: 34px; color:#b30059; margin-bottom:10px; font-weight:700; }
 
-  #particles {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 1;
-  }
+input[type=text] {
+  width:90%; padding:12px; margin-bottom:20px;
+  border-radius:12px; border:2px solid #ff6f91;
+  font-size:18px; outline:none; transition:0.3s;
+}
+input[type=text]:focus {
+  border-color:#b30059;
+  box-shadow:0 0 8px rgba(179,0,89,0.5);
+}
 
-  .particle {
-    position: absolute;
-    font-size: 20px;
-    opacity: 0.7;
-    user-select: none;
-    pointer-events: none;
-  }
+button {
+  width:90%; padding:14px; margin:10px auto;
+  font-size:18px; cursor:pointer;
+  border-radius:12px; border:none;
+  font-weight:600; background:#ff6f91; color:white;
+  transition:0.3s; display:block;
+}
+button:hover {
+  transform:scale(1.06);
+  box-shadow:0 0 12px rgba(255,120,150,0.8);
+}
+
+#wish-btn { background:#28a745; display:none; }
+#wish-btn:hover { background:#1f8a38; }
+
+#mom-photo {
+  display:none; width:100%; border-radius:20px;
+  margin-top:20px; border:5px solid #ff8fb1;
+  box-shadow:0 0 25px rgba(255,120,150,0.7);
+  animation:photoGlow 4s ease-in-out infinite;
+}
+
+@keyframes photoGlow {
+  0% { box-shadow:0 0 25px rgba(255,120,150,0.7); }
+  50% { box-shadow:0 0 50px rgba(255,150,180,1); }
+  100% { box-shadow:0 0 25px rgba(255,120,150,0.7); }
+}
+
+#final-text { font-size:20px; margin-top:25px; white-space:pre-wrap; display:none; color:#6b004f; font-weight:600; min-height:60px; }
+
+.particle {
+  position:absolute;
+  font-size: 26px;
+  opacity:0.75;
+  user-select:none;
+  pointer-events:none;
+}
 </style>
 </head>
+
 <body>
+
 <div id="particles"></div>
+
 <div class="container" id="main-container">
-  <h1>Guess Whose Birthday It Is?!! Jap's:- 🎉</h1>
+
+  <h1>Guess Whose Birthday🎉 It Is? Jap’s</h1>
+
   <div id="name-section">
-    <input type="text" id="visitor-name" placeholder="Enter your name" />
+    <input type="text" id="visitor-name" placeholder="But first enter your name" />
     <button onclick="startQuiz()">Start</button>
   </div>
 
   <div id="instructions" style="display:none;">
-    <p>Only one chance to guess! Choose wisely:</p>
-    <p class="note">*One guess per device is allowed*</p>
+    <p class="font-size">Only one chance. Choose wisely:</p>
   </div>
 
   <div id="options" style="display:none;">
-    <button onclick="recordAnswer('mom', this)">Mom</button>
-    <button onclick="recordAnswer('dad', this)">Dad</button>
-    <button onclick="recordAnswer('sister', this)">Sister</button>
-    <button onclick="recordAnswer('cousin', this)">Cousin</button>
-    <button onclick="recordAnswer('friend', this)">Friend</button>
-    <button onclick="recordAnswer('someone_else', this)">Someone Else</button>
+    <button onclick="recordAnswer('mom')">Mom</button>
+    <button onclick="recordAnswer('dad')">Dad</button>
+    <button onclick="recordAnswer('sister')">Sister</button>
+    <button onclick="recordAnswer('cousin')">Cousin</button>
+    <button onclick="recordAnswer('friend')">Friend</button>
+    <button onclick="recordAnswer('someone_else')">Someone Else</button>
   </div>
 
-  <div id="result"></div>
-  <div id="final-text"></div>
-  <img id="mom-photo" src="mom.jpeg" alt="Mom Photo" />
-  <div id="stats" style="display:none;"></div>
-  <button class="reset-btn" onclick="resetVotes()">Reset Votes</button>
-  <button id="wish-btn" style="display:none;">Send Birthday Wish ❤️</button>
+  <div class="font-size" id="result"></div>
+  <img id="mom-photo" src="mom.jpeg" alt="Photo" />
+  <div id="final-text"></div><br>
+  <button id="wish-btn">Send Birthday Wish ❤️</button>
+
 </div>
 
-<canvas class="confetti" id="confetti-canvas"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-let stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
+const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+const wrongSound   = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const clickSound   = new Audio("https://actions.google.com/sounds/v1/cartoon/soft_pop.ogg");
+clickSound.volume = 0.25;
+const jingleSound = new Audio("https://actions.google.com/sounds/v1/ambiences/birthday_crowd.ogg");
+jingleSound.loop = true;
+jingleSound.volume = 0.18;
+
+let visitorName = "";
 let guessed = false;
-let visitorName = '';
 
 function startQuiz(){
   const nameInput = document.getElementById('visitor-name');
   visitorName = nameInput.value.trim();
-  if(!visitorName) { alert('Please enter your name'); return; }
-  document.getElementById('name-section').style.display='none';
-  document.getElementById('instructions').style.display='block';
-  document.getElementById('options').style.display='block';
+  if (!visitorName){ alert("Please enter your name"); return; }
+
+  clickSound.play().catch(()=>{});
+
+  document.getElementById("name-section").style.display="none";
+  document.getElementById("instructions").style.display="block";
+  document.getElementById("options").style.display="block";
 }
 
-const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
-const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-const clickSound = new Audio('https://actions.google.com/sounds/v1/cartoon/soft_pop.ogg');
-clickSound.volume = 0.2;
-const jingleSound = new Audio('https://actions.google.com/sounds/v1/ambiences/birthday_crowd.ogg');
-jingleSound.loop = true;
-jingleSound.volume = 0.15;
-jingleSound.play().catch(()=>{});
-
-function hideOptionsAndInstructions(){
-  document.getElementById('options').style.display='none';
-  document.getElementById('instructions').style.display='none';
-}
-
-function recordAnswer(choice, btn){
-  if(guessed) return;
-  stats[choice]++;
-  stats.total++;
+function recordAnswer(choice){
+  if (guessed) return;
   guessed = true;
-  hideOptionsAndInstructions();
 
-  const resultEl = document.getElementById('result');
-  showPhoto();
-  const rect = document.getElementById('mom-photo').getBoundingClientRect();
+  jingleSound.play().catch(()=>{});
 
-  if(choice==='mom'){
-    resultEl.innerHTML = `Correct! 🎉 ❤️ ${visitorName} guessed correctly!`;
-    launchConfettiAroundPhoto(rect, 1200);
+  let result = document.getElementById("result");
+
+  document.getElementById("options").style.display="none";
+  document.getElementById("instructions").style.display="none";
+
+  if (choice === 'mom'){
+    result.innerHTML = `Correct! ❤️ ${visitorName} guessed right!`;
     correctSound.play().catch(()=>{});
   } else {
-    resultEl.innerHTML = `${visitorName} guessed ${choice} 😢 Incorrect! The correct answer is Mom.`;
-    resultEl.classList.add('wrong');
-    launchConfettiAroundPhoto(rect, 800);
+    result.innerHTML = `${visitorName} guessed ${choice}.<br> INCORRECT! It's his Mom.`;
+    result.style.color = "#b30059";
     wrongSound.play().catch(()=>{});
   }
-  document.getElementById('wish-btn').style.display='block';
-  showStats();
+
+  showPhoto();
+  typeMessageForMom();
+  document.getElementById("wish-btn").style.display = "block";
+  launchConfettiBurst();
 }
 
 function showPhoto(){
-  document.getElementById('mom-photo').style.display='block';
+  const img = document.getElementById("mom-photo");
+  img.style.display = "block";
 }
 
-function showStats(){
-  const statsDiv = document.getElementById('stats');
-  statsDiv.style.display='block';
-  const total = stats.total || 0;
-  const pct = n => total===0?'0.0':((n/total)*100).toFixed(1);
-  statsDiv.innerHTML = `<strong>Live Results:</strong><br>Mom: ${pct(stats.mom)}%<br>Dad: ${pct(stats.dad)}%<br>Sister: ${pct(stats.sister)}%<br>Cousin: ${pct(stats.cousin)}%<br>Friend: ${pct(stats.friend)}%<br>Someone Else: ${pct(stats.someone_else)}%<br>Total Votes: ${total}`;
+function launchConfettiBurst(){
+  confetti({ particleCount: 120, spread: 80, origin:{ y:0.3 } });
 }
 
-function resetVotes(){
-  stats = { mom:0, dad:0, sister:0, cousin:0, friend:0, someone_else:0, total:0 };
-  guessed=false;
-  document.getElementById('options').style.display='block';
-  document.getElementById('instructions').style.display='block';
-  document.getElementById('result').innerHTML='';
-  document.getElementById('result').classList.remove('wrong');
-  document.getElementById('mom-photo').style.display='none';
-  document.getElementById('stats').style.display='none';
-  document.getElementById('wish-btn').style.display='none';
-  document.getElementById('name-section').style.display='block';
+function typeMessageForMom(){
+  const text = `Waheguru g has blessed me with a mother whose strength, compassion, and simplicity guide his life every day.
+May Waheguru keep you in chardi kala and bless you with long life, health, and peace.
+Happy Birthday MOM. ❤️`;
+
+  const display = document.getElementById("final-text");
+  display.style.display = "block";
+  display.innerHTML = "";
+
+  let i = 0;
+  function type(){
+    if(i < text.length){ display.innerHTML += text.charAt(i); i++; setTimeout(type, 35); }
+  }
+  type();
 }
 
-function launchConfettiAroundPhoto(rect, duration=1000){
-  const end = Date.now() + duration;
-  (function frame(){
-    const randomX = rect.left + Math.random() * rect.width;
-    const randomY = rect.top + Math.random() * rect.height;
-    confetti({particleCount: 8, spread: 60, origin:{x:randomX/window.innerWidth,y:randomY/window.innerHeight}, shapes:['circle','heart','star']});
-    if(Date.now() < end){ requestAnimationFrame(frame); }
-  }());
-}
-
-// Particles floating in background continuously
 function createParticles(){
-  const particleContainer = document.getElementById('particles');
-  const symbols = ['🎈','🎉','💖','⭐'];
-  const totalParticles = 15;
-  for(let i=0;i<totalParticles;i++){
-    const span = document.createElement('span');
-    span.className='particle';
-    span.innerText=symbols[Math.floor(Math.random()*symbols.length)];
-    resetParticle(span);
-    particleContainer.appendChild(span);
-    animateParticle(span);
+  const container = document.getElementById("particles");
+  const symbols = ["🎈","🎉","💖","⭐"];
+  const count = 20;
+
+  for(let i=0;i<count;i++){
+    let span = document.createElement("span");
+    span.className = "particle";
+    span.innerHTML = symbols[Math.floor(Math.random()*symbols.length)];
+    span.style.left = Math.random()*100 + "%";
+    span.style.top = (100 + Math.random()*20) + "%";
+    span.speed = 0.3 + Math.random()*0.6;
+
+    container.appendChild(span);
+    floatUp(span);
   }
 }
 
-function resetParticle(span){
-  span.style.left = Math.random()*100 + '%';
-  span.style.top = '100%';
-  span.style.fontSize = (Math.random()*20 + 20)+'px';
-  span.speed = Math.random()*0.5 + 0.5;
-}
-
-function animateParticle(span){
+function floatUp(el){
   function move(){
-    let top = parseFloat(span.style.top);
-    top -= span.speed;
-    if(top<-5){ top=100; span.style.left=Math.random()*100 + '%'; }
-    span.style.top = top + '%';
+    let top = parseFloat(el.style.top);
+    top -= el.speed;
+    if(top < -10){ top = 110; el.style.left = Math.random()*100 + "%"; }
+    el.style.top = top + "%";
     requestAnimationFrame(move);
   }
   move();
 }
+
 createParticles();
 
-// Send Birthday Wish button
-document.getElementById('wish-btn').addEventListener('click', function(){
-  const message = encodeURIComponent(`Hi! I'm ${visitorName}. Wishing your Mom a very Happy Birthday! 🎉❤️`);
-  const whatsappUrl = `https://wa.me/16044459047?text=${message}`;
-  window.open(whatsappUrl,'_blank');
+document.getElementById("wish-btn").addEventListener("click", ()=>{
+  const msg = encodeURIComponent(`Hi! I'm ${visitorName}. Wishing your Mom a very Happy Birthday! ❤️🎉`);
+  window.open(`https://wa.me/16044459047?text=${msg}`, "_blank");
 });
 </script>
+
 </body>
 </html>
